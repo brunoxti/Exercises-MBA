@@ -1,56 +1,78 @@
 // SPDX-License-Identifier: GPL-3.0
 
 /**
-    Você está trabalhando em um contrato que realiza o acompanhamento da
-    vida dos usuários. Ele possui uma função que realiza a classificação do ser
-    humano, conforme sua idade (recebida por parâmetro), em três fases da sua
-    vida: criança (se tiver menos do que 18 anos), adulto (se tiver 18 anos ou mais)
-    e idoso (se tiver 60 anos ou mais).
-    Implemente as funções necessárias para criar uma base de dados
-    contendo os usuários (identificados pelo seu nome), sua idade e classificação, e
-    para realizar a consulta, quando um nome for enviado como um parâmetro. Por
-    simplificação, assumimos que nenhum nome de usuário se repetirá.
+   4 – Seu contrato é especializado em manipular arrays. Ele deve ser capaz de
+receber como parâmetro um array de números inteiros (tamanho variável), sem
+repetição, em tempo de compilação, e deve possuir funcionalidades para
+remoção de determinado valor.
+Por exemplo, em um array inicial [1,2,3], se eu invocar a funcionalidade
+de remoção passando o número 2 como parâmetro, o array inicial deve virar
+[1,3].
+Da mesma maneira, quero ter uma funcionalidade que inclua um valor ao
+final do array, para que ele cresça. Contudo, nenhum valor repetido é aceitável;
+caso isto ocorra, não devo ser capaz de incluir o número.
+Faça as implementações necessárias.
     */
 
-pragma solidity >=0.8.12 <0.9.0;
+    pragma solidity >=0.8.12 <0.9.0;
 
-contract Exercicio01 {
+     contract Exercicio04 {
 
-struct User
-{
-    string faseLife;
-    uint8 age;
-    string name;
-}
+        uint[] array = [1,2,3,4,5,6];
 
-mapping(uint256 => User) users;
-uint8[] public usersId;
+        function removeNumber(uint _number) public {
+             for(uint i = 0; i < array.length; i++){
+                 if(array[i] == _number){
+                     delete array[i];
 
-    function setClassification (uint8 _age, string memory _name, uint8 id) public{
-        User storage newUser = users[id];
-
-        if(_age < 18 ) {
-            newUser.faseLife = "crianca";
-        }
-        else if(_age >= 18 && _age < 60){ 
-            newUser.faseLife = "adulto";
-        }
-        else if (_age >= 60){
-            newUser.faseLife = "idoso";
+                     for(uint j = i; j <= array.length;j++){
+                         if(array[j] == array[array.length-1]){
+                             break;
+                         }
+                         array[j] = array[j+1];
+                     }
+                     array.pop();
+                 }
+             }
         }
 
-        newUser.name = _name;
-        newUser.age = _age;
+        function addNumber(uint _number) public {
+            require(validateNumberAtArray(_number), "Nao permitido numero repetido");
+            array.push(_number);
+        }
 
-        usersId.push(id);
+        function addNewArray(uint[] memory _array) public {
+            require(validateArray(_array), "Nao permitido numero repetido");
+                array = _array;
+        }
+
+        function validateArray(uint[] memory _array) internal pure returns(bool result){
+
+            for (uint j = 0; j < _array.length; j++){
+                uint value = _array[j];
+
+                for(uint i = j+1; i < _array.length; i++){
+                    if(value == _array[i])
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        function validateNumberAtArray(uint _number) internal view returns(bool result){
+
+            for (uint j = 0; j < array.length; j++){
+                if(_number == array[j]){
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function getArray() public view returns(uint[] memory result){
+
+            return array;    
+        }
     }
-
-    function getUser(uint8 id) public view returns (string memory, uint){
-        User storage user = users[id];
-        return (string(abi.encodePacked("Nome: ",user.name, " Fase: ",user.faseLife)), user.age);
-        
-    }
-}
-
-
-
